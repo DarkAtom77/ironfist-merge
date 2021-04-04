@@ -54,6 +54,8 @@ int townIconFrames[MAX_FACTIONS] = {
   26
 };
 
+unsigned char playerVisitedObject[144][144] = { 0 };
+
 icon* ironfistHeroMapIcons[MAX_FACTIONS];
 
 int advManager::ProcessDeSelect(tag_message *evt, int *n, mapCell **cells) {
@@ -328,6 +330,10 @@ void advManager::DoEvent(class mapCell *cell, int locX, int locY) {
     case LOCATION_PYRAMID:
       this->HandlePyramid(cell, locationType, hro, &res2, locX, locY);
       break;
+    case LOCATION_WITCH_HUT:
+      playerVisitedObject[locX][locY] |= 1u << gpCurPlayer->color;
+      this->DoEvent_orig(cell, locX, locY);
+      break;
     case LOCATION_SHIPYARD: {
       gpMouseManager->SetPointer(0);
 
@@ -541,6 +547,21 @@ void advManager::QuickInfo(int x, int y) {
       }
       
       return;
+    } else if(locationType == LOCATION_WITCH_HUT && (playerVisitedObject[xLoc][yLoc] >> gpCurPlayer->color) & 1u) {
+      std::string tooltip = "Witch's Hut\n{Skill:} ";
+      tooltip += gSecondarySkills[mapCell->extraInfo];
+      if(gpCurPlayer->curHeroIdx != -1)
+      {
+        hero* hro = &gpGame->heroes[gpCurPlayer->curHeroIdx];
+        if(hro != NULL)
+        {
+          if(hro->GetSSLevel(mapCell->extraInfo) >= 1)
+            tooltip += "\n(already learned)";
+          else
+            tooltip += "\n(not learned)";
+        }
+      }
+      overrideText = tooltip;
     } else {
       QuickInfo_orig(x, y);
       return;

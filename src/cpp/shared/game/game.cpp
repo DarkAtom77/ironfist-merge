@@ -5,6 +5,7 @@
 #include "analytics.h"
 #include "adventure/hero_globals.h"
 #include "adventure/terrain.h"
+#include "adventure/adv.h"
 #include "base.h"
 #include "campaign/campaign.h"
 #include "combat/creatures.h"
@@ -342,6 +343,7 @@ void game::InitNewGame(struct SMapHeader *a) {
 			strcpy_s(this->mapFilename, mapNameSize, lastPlayed.c_str());
 		}
 	}
+   memset(playerVisitedObject, 0, sizeof playerVisitedObject);
 	this->InitNewGame_orig(a);
 }
 

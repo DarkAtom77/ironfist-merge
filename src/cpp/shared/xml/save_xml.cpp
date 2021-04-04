@@ -490,6 +490,18 @@ tinyxml2::XMLError IronfistXML::Save(const char* fileName) {
   std::string script = GetScriptContents(gMapName);
   if(script.length())
     PushBack(tempDoc, pRoot, "script", script.c_str());
+
+  for(int i = 0; i < 144; i++)
+    for(int j = 0; j < 144; j++)
+      if(playerVisitedObject[i][j])
+      {
+        pElement = tempDoc->NewElement("playerVisitedObject");
+        pElement->SetAttribute("x", i);
+        pElement->SetAttribute("y", j);
+        pElement->SetAttribute("value", playerVisitedObject[i][j]);
+      }
+  pRoot->InsertEndChild(pElement);
+
   return tempDoc->SaveFile(fileName);
 }
 
@@ -913,10 +925,13 @@ void IronfistXML::ReadRoot(tinyxml2::XMLNode* root) {
   char hasPlayer[NUM_PLAYERS];
   std::vector<int> xmlArtifacts;
   std::map<std::string, mapVariable> mapVariables;
+  memset(playerVisitedObject, 0, sizeof playerVisitedObject);
   for(tinyxml2::XMLNode* child = root->FirstChild(); child; child = child->NextSibling()) {
     tinyxml2::XMLElement *elem = child->ToElement();
     std::string name = elem->Name();
     int index = elem->IntAttribute("index"); // used for arrays
+    int xCoord = elem->IntAttribute("x");
+    int yCoord = elem->IntAttribute("y");
     int value = elem->IntAttribute("value"); // used for arrays
     if(name == "allowAIArmySharing") elem->QueryBoolText(&gpGame->allowAIArmySharing);
     else if(name == "disallowedBuildings") {
@@ -1046,6 +1061,7 @@ void IronfistXML::ReadRoot(tinyxml2::XMLNode* root) {
       }
       mapVariables[mapVariableId] = *mapVar;
     }
+    else if(name == "playerVisitedObject") playerVisitedObject[xCoord][yCoord] = value;
   }
 
   int c = 0;

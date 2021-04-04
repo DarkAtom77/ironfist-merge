@@ -365,6 +365,8 @@ extern int giAdjacentMonsterY;
 extern int giAdjacentMonsterLowerBoundX;
 extern int giAdjacentMonsterLowerBoundY;
 
+extern unsigned char playerVisitedObject[144][144];
+
 hero* GetCurrentHero();
 bool GetMapCellXY(mapCell* cell, int* x, int* y);
 
